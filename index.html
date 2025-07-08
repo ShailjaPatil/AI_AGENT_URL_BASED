@@ -1,0 +1,169 @@
+<!--INDEX FILE FOR UI-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Research Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .typewriter {
+            border-right: 2px solid;
+            animation: blink 0.75s step-end infinite;
+        }
+        @keyframes blink {
+            from, to { border-color: transparent }
+            50% { border-color: #3B82F6; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-blue-600 mb-2">
+                <i class="fas fa-infinity mr-2"></i>URL-Based Q&A Assistant
+            </h1>
+            <p class="text-gray-600">Extract answers from any URL</p>
+        </header>
+
+        <!-- Main Card -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <!-- URL Input Section -->
+            <div class="p-6 border-b">
+                <div class="flex">
+                    <input 
+                        type="text" 
+                        id="url" 
+                        placeholder="Enter article URL (e.g. https://example.com)" 
+                        class="flex-grow px-4 py-3 rounded-l-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                    <button 
+                        onclick="scrapeURL()" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-r-lg transition"
+                    >
+                        <i class="fas fa-cloud-download-alt mr-2"></i>Scrape
+                    </button>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">I'll extract and analyze the page content</p>
+            </div>
+
+            <!-- Chat Section -->
+            <div class="p-6">
+                <div id="chat-container" class="mb-4 h-64 overflow-y-auto space-y-4">
+                    <!-- Messages will appear here -->
+                </div>
+
+                <div class="flex">
+                    <input 
+                        type="text" 
+                        id="question" 
+                        placeholder="Ask me something about the article..." 
+                        class="flex-grow px-4 py-3 rounded-l-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                    <button 
+                        onclick="askQuestion()" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-r-lg transition"
+                    >
+                        <i class="fas fa-paper-plane mr-2"></i>Ask
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="grid md:grid-cols-3 gap-6 mt-8">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="text-blue-500 mb-3">
+                    <i class="fas fa-bolt text-2xl"></i>
+                </div>
+                <h3 class="font-bold mb-2">Instant Analysis</h3>
+                <p class="text-gray-600 text-sm">Get summaries and answers in seconds</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="text-blue-500 mb-3">
+                    <i class="fas fa-link text-2xl"></i>
+                </div>
+                <h3 class="font-bold mb-2">URL Processing</h3>
+                <p class="text-gray-600 text-sm">Works with articles and documentation</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="text-blue-500 mb-3">
+                    <i class="fas fa-shield-alt text-2xl"></i>
+                </div>
+                <h3 class="font-bold mb-2">Context-Aware</h3>
+                <p class="text-gray-600 text-sm">Answers based only on provided content</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript with animations
+        async function scrapeURL() {
+            const url = document.getElementById("url").value.trim();
+            if (!url) return;
+            
+            addMessage("system", "Scraping URL... <i class='fas fa-spinner fa-spin'></i>");
+            
+            try {
+                const response = await fetch("/scrape", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url })
+                });
+                
+                if (!response.ok) throw new Error("Scraping failed");
+                
+                addMessage("system", "✅ Content ready for questions!");
+            } catch (error) {
+                addMessage("error", `Scraping failed: ${error.message}`);
+            }
+        }
+
+        async function askQuestion() {
+            const question = document.getElementById("question").value.trim();
+            if (!question) return;
+            
+            addMessage("user", question);
+            document.getElementById("question").value = "";
+            
+            const typingIndicator = addMessage("assistant", "<span class='typewriter'>Thinking...</span>");
+            
+            try {
+                const response = await fetch("/ask", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ question })
+                });
+                
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || "Unknown error");
+                
+                updateMessage(typingIndicator, data.answer);
+            } catch (error) {
+                updateMessage(typingIndicator, `❌ ${error.message}`);
+            }
+        }
+
+        // UI Helpers
+        function addMessage(role, content) {
+            const container = document.getElementById("chat-container");
+            const message = document.createElement("div");
+            message.className = `message ${role} p-4 rounded-lg max-w-[80%] ${
+                role === "user" ? "bg-blue-100 ml-auto" : 
+                role === "error" ? "bg-red-100" : "bg-gray-100"
+            }`;
+            message.innerHTML = content;
+            container.appendChild(message);
+            container.scrollTop = container.scrollHeight;
+            return message;
+        }
+
+        function updateMessage(element, newContent) {
+            element.innerHTML = newContent;
+            element.classList.remove("typewriter");
+        }
+    </script>
+</body>
+</html>

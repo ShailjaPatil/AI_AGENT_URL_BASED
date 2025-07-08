@@ -1,0 +1,17 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+
+# ChromaDB local vector store
+chroma_db/
+chroma/
+.db/
+
+# env
+.env
+
+#test file
+test.py
