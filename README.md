@@ -44,23 +44,23 @@ python -m venv venv
 venv\Scripts\activate  
 
 ### 3. Install Dependencies
--> Core framework and environment
+#1 Core framework and environment
 flask
 python-dotenv
--> LangChain core
+#2 LangChain core
 langchain
 langchain-community
--> Vector store and embeddings
+#3 Vector store and embeddings
 chromadb
 huggingface-hub
--> OpenAI-compatible interface (used for OpenRouter)
+#4 OpenAI-compatible interface (used for OpenRouter)
 openai
--> Firecrawl for URL scraping
+#5 Firecrawl for URL scraping
 firecrawl
 
 ## Enviornment Variables in .env
-FIRECRAWL_API_KEY=your_firecrawl_key
-HF_TOKEN=your_huggingface_token
+#1 FIRECRAWL_API_KEY=your_firecrawl_key
+#2 HF_TOKEN=your_huggingface_token
 
 ## USAGE
 #1. Start flask APP
