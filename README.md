@@ -44,18 +44,18 @@ python -m venv venv
 venv\Scripts\activate  
 
 ### 3. Install Dependencies
-# Core framework and environment
+-> Core framework and environment
 flask
 python-dotenv
-# LangChain core
+-> LangChain core
 langchain
 langchain-community
-# Vector store and embeddings
+-> Vector store and embeddings
 chromadb
 huggingface-hub
-# OpenAI-compatible interface (used for OpenRouter)
+-> OpenAI-compatible interface (used for OpenRouter)
 openai
-# Firecrawl for URL scraping
+-> Firecrawl for URL scraping
 firecrawl
 
 ## Enviornment Variables in .env
